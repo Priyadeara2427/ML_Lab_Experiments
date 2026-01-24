@@ -7,6 +7,48 @@
 \usepackage{multicol}
 \usepackage{longtable}
 \usepackage{titlesec}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{float}      % For [H] placement
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{longtable}
+\usepackage{titlesec}
+
+% Custom colors for code
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=none,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=Python
+}
 
 \begin{document}
 
@@ -25,7 +67,7 @@
 Degree \& Branch & \multicolumn{1}{c|}{B.E. Computer Science \& Engineering} & Semester & VI \\ \hline
 Subject Code \& Name & \multicolumn{3}{c|}{UCS2612 -- Machine Learning Algorithms Laboratory} \\ \hline
 Academic Year & \multicolumn{1}{c|}{2025--2026 (Even)} & Batch & 2023--2027 \\ \hline
-Due Date & \multicolumn{3}{c|}{\textbf{}} \\ \hline
+Due Date & \multicolumn{3}{c|}{{27-01-2026}} \\ \hline
 \end{tabular}
 }
 \end{table}
@@ -35,90 +77,1385 @@ Due Date & \multicolumn{3}{c|}{\textbf{}} \\ \hline
 \end{center}
 
 %==================================================
-\section*{Objective}
-To implement Na\"ive Bayes and K-Nearest Neighbors (KNN) classifiers for a binary classification problem, evaluate them using multiple performance metrics, visualize model behavior, and analyze overfitting, underfitting, and bias--variance characteristics.
+\section{Aim and Objective}
+To implement Na\"ive Bayes and K-Nearest Neighbors (KNN) classifiers for a binary classification problem using the Spambase dataset, evaluate them using multiple performance metrics, and analyze their behavior.
 
 %==================================================
-\section*{Dataset}
-A benchmark binary classification dataset containing numerical features and two class labels is used.
-
-Dataset reference:
-\begin{itemize}
-    \item Kaggle: \href{https://www.kaggle.com/datasets/somesh24/spambase}{Spambase Dataset}
-\end{itemize}
+\section{Dataset Description}
+The experiment uses the \textbf{Spambase Dataset} containing 57 features related to word and character frequencies in emails. The target variable is \texttt{class}, where 1 denotes spam and 0 denotes ham.
 
 %==================================================
-\section*{Brief Theory (For Lab Understanding)}
-
-\subsection*{Na\"ive Bayes}
-Na\"ive Bayes is a probabilistic classifier that works well for high-dimensional data.
-It is fast, simple to implement, and assumes independence among features.
-Different variants handle different types of input data.
-
-\subsection*{K-Nearest Neighbors (KNN)}
-KNN is an instance-based learning algorithm that classifies samples based on similarity.
-The choice of the number of neighbors ($k$) strongly influences performance.
-Feature scaling is important for distance-based methods like KNN.
-
-\subsection*{Neighbor Search Methods}
-KDTree and BallTree are used to speed up nearest neighbor searches.
-They mainly affect computation time and memory usage, not classification accuracy.
-
-\subsection*{Hyperparameter Tuning}
-Hyperparameter tuning helps identify the best model settings using validation data.
-Grid Search and Randomized Search are commonly used approaches.
-
-%==================================================
-\section*{Task Description}
-Students must:
-\begin{itemize}
-    \item Implement Na\"ive Bayes and KNN classifiers
-    \item Tune KNN hyperparameters using GridSearchCV or RandomizedSearchCV
-    \item Compare KDTree and BallTree search strategies
-    \item Visualize results during execution
-    \item Analyze model behavior using bias--variance concepts
-\end{itemize}
-
-%==================================================
-\section*{Implementation Steps}
-\begin{enumerate}[label=\arabic*.]
-    \item Load the dataset
-    \item Perform data preprocessing (handling missing values and scaling)
-    \item Perform Exploratory Data Analysis (EDA)
-    \item Visualize class distribution and feature behavior
-    \item Split the dataset into training and testing sets
-    \item Train Na\"ive Bayes variants
-    \item Train a baseline KNN classifier
-    \item Perform hyperparameter tuning for KNN using 5-Fold Cross-Validation
-    \item Train optimized KNN models using KDTree and BallTree
-    \item Evaluate all models using multiple metrics
+\section{Preprocessing Steps}
+Based on the implementation, the following preprocessing steps were carried out:
+\begin{enumerate}
+    \item \textbf{Data Cleaning}: Duplicate rows were identified using \texttt{df.duplicated()} and removed with \texttt{df.drop\_duplicates()}.
+    \item \textbf{Missing Values}: Handled by checking for null entries using \texttt{df.isnull().sum()}.
+    \item \textbf{Feature Scaling}: Since KNN is distance-dependent, \texttt{StandardScaler} was used to normalize the features.
+    \item \textbf{Data Splitting}: The dataset was split into training and testing sets using \texttt{train\_test\_split}.
 \end{enumerate}
 
 %==================================================
-\section*{Required Visualizations (During Coding)}
-Students must generate and include:
+\section{Implementation Details}
+The following code snippets illustrate the core implementation of the classifiers:
+
+\subsection*{Important Libraries to be included}
+\begin{lstlisting}[language=Python]
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+import math
+from matplotlib import rcParams
+from sklearn.model_selection import train_test_split, StratifiedKFold, GridSearchCV, RandomizedSearchCV,cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
+from sklearn.model_selection import learning_curve
+import time
+from sklearn.metrics import  classification_report, roc_auc_score, average_precision_score
+from scipy.stats import f_oneway
+
+plt.rcParams.update({
+    "font.family": "Arial",
+    "font.size": 15,
+    "axes.titlesize": 15,
+    "axes.titleweight": "bold",
+    "axes.labelsize": 15,
+    "axes.labelweight": "bold",
+    "xtick.labelsize": 13,
+    "ytick.labelsize": 13
+})
+\end{lstlisting}
+
+\subsection*{1. Load the dataset}
+\begin{lstlisting}[language=Python]
+# loading dataset
+df = pd.read_csv("spambase_csv.csv")
+
+# Seeing first 5 rows.
+df.head()
+
+# Checking the data types of each features of the dataset
+df.info()
+\end{lstlisting}
+
+\subsection*{2. Perform data preprocessing (handling missing values and scaling)}
+\begin{lstlisting}[language=Python]
+# Checking if any duplicate rows are found.
+print("Duplicates in data: ", any(df.duplicated()))
+
+# Remove duplicates rows.
+df = df.drop_duplicates()
+
+# Checking the missing and null values...for train data
+any(df.isnull().sum())
+
+# Separate features (X) and target (y)
+X = df.drop('class', axis=1)
+y = df['class']
+\end{lstlisting}
+
+\subsection*{3. Perform Exploratory Data Analysis (EDA)}
+\begin{lstlisting}[language=Python]
+# Statistical summary for train data
+df.describe()
+
+print("Shape of dataset: ",df.shape)
+
+# Boxplot after standard scalar for outliers.
+
+cols_per_plot = 10  # number of features in each subplot
+total_cols = X.shape[1]
+num_plots = math.ceil(total_cols / cols_per_plot)
+
+fig, axes = plt.subplots(nrows=num_plots, ncols=1, figsize=(16, num_plots*4))
+
+for i in range(num_plots):
+    start_col = i * cols_per_plot
+    end_col = min((i+1) * cols_per_plot, total_cols)
+    subset = X.iloc[:, start_col:end_col]  # select subset of columns
+    
+    sns.boxplot(data=subset, ax=axes[i])
+    axes[i].set_title(f"Boxplot for Features {start_col+1} to {end_col}")
+    axes[i].set_xlabel("Features")
+    axes[i].set_ylabel("Values")
+    axes[i].tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()
+
+# Handling outliers by using capping.
+cols = df.drop(columns='class', axis = 1)
+for col in cols:
+    upper_limit = df[col].quantile(0.95)
+    lower_limit = df[col].quantile(0.05)
+    df[col] = np.where(df[col]>upper_limit, upper_limit, np.where(df[col]<lower_limit, lower_limit, df[col]))
+
+
+# Separate features (X) and target (y) again after handling outliers.
+X = df.drop('class', axis=1)
+y = df['class']
+
+# Correlation analysis
+corr = df.corr()
+
+# Heatmap plot for correlation analysis
+plt.figure(figsize=(12, 10))
+sns.heatmap(
+    corr,
+    annot=True,
+    fmt=".2f",
+    cmap="coolwarm",
+    square=True,
+    annot_kws={"size": 8}
+)
+plt.title("Correlation Heatmap")
+plt.show()
+\end{lstlisting}
+
+\subsection*{4. Visualize class distribution and feature behavior}
+\begin{lstlisting}[language=Python]
+# Class Distribution Plot
+sns.countplot(data=df,x="class")
+
+# Feature vs. target scatter plots
+# Select numerical features
+num_features = df.select_dtypes(include=['int64', 'float64']).columns
+
+# Number of columns
+cols = 3
+rows = math.ceil(len(num_features) / cols)
+
+# Create subplots
+fig, axes = plt.subplots(rows, cols, figsize=(5*cols, 4*rows))
+axes = axes.flatten()
+
+# Plot each feature
+for i, col in enumerate(num_features):
+    sns.scatterplot(x=df[col], y=df["class"], ax=axes[i])
+    axes[i].set_title(f"{col} vs Target")
+    axes[i].set_xlabel(col)
+    axes[i].set_ylabel("Class")
+
+# Remove empty subplots
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.tight_layout()
+plt.show()
+
+# Histogram
+cols = df.columns
+ncols = 3
+nrows = math.ceil(len(cols) / ncols)
+
+fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(15, 4 * nrows))
+axes = axes.flatten()
+
+bxwidth = 1
+
+for i, col in enumerate(cols):
+    sns.histplot(df[col], bins=20, ax=axes[i])
+    axes[i].set_title(f"{col.upper()} Distribution", pad=20)
+    axes[i].set_xlabel(col, labelpad=0)
+    axes[i].set_ylabel("Frequency", labelpad=10)
+    for spine in axes[i].spines.values():
+        spine.set_linewidth(bxwidth)
+
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.subplots_adjust(hspace=1.5, wspace=1.3)
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\subsection*{5. Split the dataset into training and testing sets}
+\begin{lstlisting}[language=Python]
+# Checking the class balance 
+print("Class 1 has : ", df[df['class'] == 1].shape)
+print("Class 0 has : ", df[df['class'] == 0].shape)
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.2, random_state=42, stratify=y)
+\end{lstlisting}
+
+\subsection*{6. Train Naive Bayes variants}
+\begin{lstlisting}[language=Python]
+# Standardize numerical features
+scaler = StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+gnb = GaussianNB()
+mnb = MultinomialNB()
+bnb = BernoulliNB()
+
+train_time = [], pred_time = [], accuracy = [], precision = []
+recall = [], f1 = [], specificity = [], false_positive_rate = [], report = []
+
+def calculate_metric(models):
+    train_time.clear()
+    pred_time.clear()
+    accuracy.clear()
+    precision.clear()
+    recall.clear()
+    f1.clear()
+    specificity.clear()
+    false_positive_rate.clear()
+    report.clear()
+    for model in models:
+        start = time.time()
+        if model == mnb:
+            model.fit(X_train, y_train)
+        else:
+            model.fit(X_train_scaled, y_train)
+        train_time.append(time.time() - start)
+
+        start = time.time()
+        if model == mnb:
+            y_pred = model.predict(X_test)
+        else:
+            y_pred = model.predict(X_test_scaled)
+        pred_time.append(time.time() - start)
+
+        accuracy.append(accuracy_score(y_test, y_pred))
+        precision.append(precision_score(y_test, y_pred))
+        recall.append(recall_score(y_test, y_pred))
+        f1.append(f1_score(y_test, y_pred))
+
+        cm = confusion_matrix(y_test, y_pred)
+        tn, fp, fn, tp = cm.ravel()
+
+        specificity.append(tn / (tn + fp))
+        false_positive_rate.append(fp / (fp + tn))
+
+        report.append(classification_report(y_test,y_pred))
+
+models = [gnb, mnb, bnb]
+methods = ["Gaussian NB", "Multinomial NB", "Bernoulli NB"]
+calculate_metric(models)
+
+NB_table = pd.DataFrame({
+    "Metric":["Accuracy", "Precision", "Recall", "F1 Score", "Specificity", "Training Time (s)"],
+    "Gaussian NB": [accuracy[0], precision[0], recall[0], f1[0], specificity[0], train_time[0]],
+    "Multinomial NB": [accuracy[1], precision[1], recall[1], f1[1], specificity[1], train_time[1]],
+    "Bernoulli NB": [accuracy[2], precision[2], recall[2], f1[2], specificity[2], train_time[2]],
+})
+NB_table
+
+# Naive Bayes - Bar Graph
+nb_scores = [
+    precision_score(y_test, gnb.predict(X_test)),
+    precision_score(y_test, mnb.predict(X_test)),
+    precision_score(y_test, bnb.predict(X_test))
+]
+
+# Bar plot
+plt.figure(figsize=(5,4))
+plt.bar(['GaussianNB', 'MultinomialNB', 'BernoulliNB'], nb_scores)
+plt.ylabel('Precision')
+plt.title('Naive Bayes Model Comparison')
+plt.grid(axis='y', alpha=0.3)
+plt.show()
+
+\end{lstlisting}
+
+\subsection*{7. Train a baseline KNN classifier}
+\begin{lstlisting}[language=Python]
+knn = KNeighborsClassifier()
+knn.fit(X_train_scaled,y_train)
+y_pred_knn = knn.predict(X_test_scaled)
+
+# Accuracy vs k plot
+k_values = range(1, 21)
+accuracies = []
+
+for k in k_values:
+  knn = KNeighborsClassifier(n_neighbors=k)
+  knn.fit(X_train_scaled, y_train)
+  accuracies.append(knn.score(X_test_scaled, y_test))
+
+plt.plot(k_values, accuracies, marker='o')
+plt.xlabel('k value')
+plt.ylabel('Accuracy')
+plt.title('Accuracy vs k')
+plt.show()
+\end{lstlisting}
+
+\subsection*{8. Perform hyperparameter tuning for KNN using 5-Fold Cross-Validation}
+\begin{lstlisting}[language=Python]
+# Stratified K fold
+skf=StratifiedKFold(n_splits=5,shuffle=True,random_state=42)
+cv_scores_base=cross_val_score(
+    knn,
+    X_train_scaled,
+    y_train,
+    cv=skf,
+    scoring='precision'
+)
+print("Base KNN CV Precision:",cv_scores_base.mean())
+
+# Grid Search CV
+param_grid = {
+    'n_neighbors': list(range(1, 31, 2)),
+    'weights': ['uniform', 'distance'],
+    'metric': ['euclidean', 'manhattan']
+}
+
+grid = GridSearchCV(
+    knn,
+    param_grid,
+    cv=skf,
+    scoring='precision',
+    n_jobs=-1
+)
+
+grid.fit(X_train_scaled, y_train)
+
+best_k = grid.best_params_['n_neighbors']
+
+print("Grid Best Params:", grid.best_params_)
+print("Best k (n_neighbors):", best_k)
+print("Grid Best CV Precision:", grid.best_score_)
+
+# Randomized Search CV
+from scipy.stats import randint
+param_dist={
+    'n_neighbors':randint(1,30),
+    'weights':['uniform','distance'],
+    'metric':['euclidean','manhattan']
+}
+rand = RandomizedSearchCV(
+    knn,
+    param_distributions=param_dist,
+    n_iter=15,
+    cv=skf,
+    scoring='precision',
+    random_state=42,
+    n_jobs=-1
+)
+rand.fit(X_train_scaled,y_train)
+best_k = rand.best_params_['n_neighbors']
+print("Random Best Params:",rand.best_params_)
+print("Best k (n_neighbors):", best_k)
+print("Random Best CV Precision:",rand.best_score_)
+
+# Final KNN 
+best_params = rand.best_params_
+
+knn_final = KNeighborsClassifier(
+    n_neighbors=best_params['n_neighbors'],
+    weights=best_params['weights'],
+    metric=best_params['metric']
+)
+optimal_k = best_params['n_neighbors']
+print("Optimal K: ", optimal_k)
+
+\end{lstlisting}
+
+\subsection*{9. Train optimized KNN models using KDTree and BallTree}
+\begin{lstlisting}[language=Python]
+knn_kd = KNeighborsClassifier(
+    n_neighbors = optimal_k,
+    weights = best_params['weights'],
+    metric = best_params['metric'],
+    algorithm = 'kd_tree'
+)
+
+knn_bt = KNeighborsClassifier(
+    n_neighbors = optimal_k,
+    weights = best_params['weights'],
+    metric = best_params['metric'],
+    algorithm = 'ball_tree'
+)
+models = [knn_final, knn_kd, knn_bt]
+calculate_metric(models)
+
+KNN_table = pd.DataFrame({
+    "Metric":["optimal k", "Accuracy", "Precision", "Recall", "F1 Score", "Specificity", "false_positive_rate", "Training Time", "prediction Time"],
+    "Generic KNN": [optimal_k, accuracy[0], precision[0], recall[0], f1[0], specificity[0],false_positive_rate[0], train_time[0], pred_time[0]],
+    "KD Tree": [optimal_k, accuracy[1], precision[1], recall[1], f1[1], specificity[1], false_positive_rate[1], train_time[1], pred_time[1]],
+    "Ball Tree": [optimal_k, accuracy[2], precision[2], recall[2], f1[2], specificity[2], false_positive_rate[2], train_time[2], pred_time[2]]
+})
+KNN_table
+
+# KNN - Bar Graph
+nb_scores = [
+    precision_score(y_test, knn_final.predict(X_test)),
+    precision_score(y_test, knn_kd.predict(X_test)),
+    precision_score(y_test, knn_bt.predict(X_test))
+]
+
+# Bar plot
+plt.figure(figsize=(5,4))
+plt.bar(['Generic KNN', 'KD Tree KNN', 'Ball Tree KNN'], nb_scores)
+plt.ylabel('Precision')
+plt.title('KNN Model Comparison')
+plt.grid(axis='y', alpha=0.3)
+plt.show()
+
+# Training vs Validation Accuracy Plot
+train_acc = []
+val_acc = []
+k_values=range(1,31,2)
+for k in k_values:
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train_scaled,y_train)
+    train_acc.append(knn.score(X_train_scaled,y_train))
+    val_acc.append(knn.score(X_test_scaled,y_test))
+    
+plt.plot(k_values,train_acc,label='Training Accuracy')
+plt.plot(k_values,val_acc,label='Validation Accuracy')
+plt.xlabel('k value')
+plt.ylabel('Accuracy')
+plt.title('Training vs Validation Accuracy')
+plt.legend()
+plt.show()
+
+plt.savefig('training_vs_validation.png', dpi=600, bbox_inches='tight')
+
+
+\end{lstlisting}
+
+\subsection*{10. Evaluate all models using multiple metrics}
+\begin{lstlisting}[language=Python]
+# Cross-Validation Scores
+gnb_scores = cross_val_score(GaussianNB(), X_train, y_train, cv = skf, scoring='precision')
+mnb_scores = cross_val_score(MultinomialNB(), X_train, y_train, cv = skf, scoring='precision')
+bnb_scores = cross_val_score(BernoulliNB(), X_train, y_train, cv = skf, scoring='precision')
+knn_kd_scores = cross_val_score(knn_kd, X_train_scaled, y_train, cv = skf, scoring='precision')
+knn_bt_scores = cross_val_score(knn_bt, X_train_scaled, y_train, cv = skf, scoring='precision')
+
+# One-Way ANOVA Test
+F_stat,p_value=f_oneway(
+    gnb_scores,
+    mnb_scores,
+    bnb_scores,
+    knn_kd_scores,
+    knn_bt_scores
+)
+
+print("F-statistic:",F_stat)
+print("p-value:",p_value)
+
+print("Gaussian NB Mean precision:",gnb_scores.mean())
+print("Multinomial NB Mean precision:",mnb_scores.mean())
+print("Bernoulli NB Mean precision:",bnb_scores.mean())
+print("KNN KDTree Mean precision:",knn_kd_scores.mean())
+print("KNN BallTree Mean precision:",knn_bt_scores.mean())
+
+best_model=max(
+    [
+        ("Gaussian NB",gnb_scores.mean()),
+        ("Multinomial NB",mnb_scores.mean()),
+        ("Bernoulli NB",bnb_scores.mean()),
+        ("KNN KDTree",knn_kd_scores.mean()),
+        ("KNN BallTree",knn_bt_scores.mean())
+    ],
+    key=lambda x:x[1]
+)
+
+print("Best Model:",best_model)
+\end{lstlisting}
+%==================================================
+% -------------------- SECTION --------------------
+\section{Visualizations}
+
+This section presents the visual analysis of the model's performance, including
+class distribution, feature behavior, and classification results across all models.
+
+% -------------------- FIGURES --------------------
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{class_distribution.png}
+    \caption{Class Distribution Plots (Spam vs Ham)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{training_vs_validation.png}
+    \caption{Training vs Validation Accuracy}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{confusion_matrices.png}
+    \caption{Confusion Matrix for Each Classifier}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{ROC_curves.png}
+    \caption{ROC Curves for Each Classifier}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{acc_vs_k.png}
+    \caption{Accuracy vs. k Plot for KNN}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{NB_bar.png}
+    \caption{Performance Comparison of Naive Bayes Variants}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{KNN_bar.png}
+    \caption{Performance Comparison of KNN Variants}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{feature_distribution.png}
+    \caption{Feature Distribution Plots}
+\end{figure}
+
+%==================================================
+\section{Performance Tables}
+%==================================================
+
+\section*{Na\"ive Bayes Performance Comparison}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Na\"ive Bayes Performance Metrics}
+\begin{tabular}{|l|c|c|c|}
+\hline
+Metric & Gaussian NB & Multinomial NB & Bernoulli NB \\
+\hline
+Accuracy & 0.86 & 0.86 & 0.89 \\
+Precision & 0.76 & 0.80 & 0.88 \\
+Recall & 0.96 & 0.86 & 0.84 \\
+F1 Score & 0.85 & 0.83 & 0.86 \\
+Specificity & 0.80 & 0.85 & 0.92 \\
+Training Time (s) & 0.004 & 0.005 & 0.010 \\
+\hline
+\end{tabular}
+\end{table}
+
+%==================================================
+\section*{KNN Hyperparameter Tuning Results}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{KNN Hyperparameter Tuning}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Search Method & Best $k$ & Best CV Precision & Best Parameters \\
+\hline
+Grid Search & 29 & 0.97 & metric: 'manhattan', n\_neighbors: 29, weights: 'distance' \\
+Randomized Search & 29 & 0.97 & metric: 'manhattan', n\_neighbors: 29, weights: 'distance' \\
+\hline
+\end{tabular}
+\end{table}
+
+%==================================================
+\section*{KNN Performance using Different Search Methods}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{KNN Performance using KDTree}
+\begin{tabular}{|l|c|}
+\hline
+Metric & Value \\
+\hline
+Optimal $k$ & 29 \\
+Accuracy & 0.92 \\
+Precision & 0.96 \\
+Recall &  0.83\\
+F1 Score & 0.89\\
+Training Time (s) & 0.02\\
+Prediction Time (s) & 0.10 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{KNN Performance using BallTree}
+\begin{tabular}{|l|c|}
+\hline
+Metric & Value \\
+\hline
+Optimal $k$ & 29 \\
+Accuracy & 0.92 \\
+Precision & 0.96 \\
+Recall & 0.83 \\
+F1 Score & 0.89 \\
+Training Time (s) & 0.01 \\
+Prediction Time (s) & 0.07 \\
+\hline
+\end{tabular}
+\end{table}
+
+%==================================================
+\section*{KDTree vs BallTree Comparison}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Comparison of Neighbor Search Algorithms}
+\begin{tabular}{|l|c|c|}
+\hline
+Criterion & KDTree & BallTree \\
+\hline
+Accuracy & 0.92 & 0.92 \\
+Training Time (s) & 0.02 & 0.01 \\
+Prediction Time (s) & 0.10 & 0.07 \\
+Memory Usage & Low / Medium & Medium / High \\
+\hline
+\end{tabular}
+\end{table}
+
+%==================================================
+\section{Overfitting and Underfitting Analysis}
+
+\subsection*{7.1 Difference between Training and Validation Accuracy}
 \begin{itemize}
-    \item Class distribution plot
-    \item Feature distribution plots
-    \item Confusion matrix for each classifier
-    \item ROC curve for each classifier
-    \item Accuracy vs. $k$ plot for KNN
-    \item Training vs. validation accuracy plot
+    \item Training accuracy measures how well the model performs on the data it was trained on, while validation accuracy evaluates performance on unseen data.
+    \item A very high training accuracy with significantly lower validation accuracy indicates \textbf{overfitting}, where the model memorizes training data but fails to generalize.
+    \item Similar and reasonably high training and validation accuracies indicate good \textbf{generalization}.
+    \item Low accuracy on both training and validation datasets indicates \textbf{underfitting}, where the model is too simple to capture underlying patterns.
+\end{itemize}
+
+\subsection*{7.2 Effect of Small and Large Values of $k$}
+\begin{itemize}
+    \item In K-Nearest Neighbors (KNN), a \textbf{small value of $k$} (e.g., $k=1$) makes the model highly sensitive to noise, leading to high variance and overfitting.
+    \item A \textbf{large value of $k$} smooths the decision boundary, which may ignore important local patterns and cause underfitting.
+    \item Choosing an optimal $k$ balances bias and variance, resulting in better performance on unseen data.
+\end{itemize}
+
+\subsection*{7.3 Role of Hyperparameter Tuning in Generalization}
+\begin{itemize}
+    \item Hyperparameter tuning helps in selecting the best model configuration that minimizes overfitting and underfitting.
+    \item Techniques such as Grid Search and Cross-Validation evaluate multiple parameter combinations on validation data.
+    \item Proper tuning improves model robustness, predictive accuracy, and ensures better generalization to new datasets.
+\end{itemize}
+
+
+%==================================================
+\section{Bias--Variance Analysis}
+\subsection*{8.1 Bias Behavior of Na\"ive Bayes}
+\begin{itemize}
+    \item Na\"ive Bayes assumes strong conditional independence among features, which simplifies the learning process.
+    \item Due to this assumption, the model has \textbf{high bias}, as it may not capture complex relationships between features.
+    \item However, the high bias makes Na\"ive Bayes stable and less prone to overfitting, especially on small or noisy datasets.
+    \item The model performs well when the independence assumption approximately holds.
+\end{itemize}
+\subsection*{8.2 Variance Behavior of KNN}
+\begin{itemize}
+    \item K-Nearest Neighbors (KNN) is a non-parametric and instance-based learning algorithm.
+    \item For small values of $k$, KNN has \textbf{high variance} because predictions depend heavily on individual training samples.
+    \item Noise or outliers in the training data can significantly affect model predictions.
+    \item Increasing the value of $k$ reduces variance by averaging over more neighbors.
+\end{itemize}
+
+\subsection*{8.3 Effect of Tuning on Bias--Variance Trade-off}
+\begin{itemize}
+    \item Hyperparameter tuning helps in finding an optimal balance between bias and variance.
+    \item In KNN, increasing $k$ increases bias but reduces variance, while decreasing $k$ lowers bias but increases variance.
+    \item Proper tuning using cross-validation improves generalization by minimizing overall prediction error.
 \end{itemize}
 
 %==================================================
-\section*{Performance Metrics to be Reported}
+\section{Observations and Conclusion}
 \begin{itemize}
-    \item Accuracy
-    \item Precision
-    \item Recall
-    \item F1 Score
-    \item Specificity
-    \item False Positive Rate
-    \item Training Time
-    \item Prediction Time
+    \item Na\"ive Bayes demonstrated fast training and prediction with low computational cost due to its simple probabilistic assumptions.
+    \item KNN achieved competitive accuracy when an optimal value of $k$ was selected through hyperparameter tuning.
+    \item Grid Search and cross-validation helped identify parameters that improved generalization and reduced overfitting.
+    \item Na\"ive Bayes showed better computational efficiency, while KNN required higher memory and computation during prediction.
+    \item Overall, both classifiers generalized well when properly tuned, with KNN offering higher flexibility and Na\"ive Bayes providing stable performance.
 \end{itemize}
 
+\end{document}\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{longtable}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{graphicx}   % REQUIRED for images
+\usepackage{float}      % For [H] placement
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{longtable}
+\usepackage{titlesec}
+
+% Custom colors for code
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=none,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=Python
+}
+
+\begin{document}
+
+%==================================================
+\begin{center}
+    \large \textbf{Sri Sivasubramaniya Nadar College of Engineering, Chennai} \\
+    (An autonomous Institution affiliated to Anna University) \\
+    \vspace{0.3cm}
+\end{center}
+
+\begin{table}[!h]
+\renewcommand{\arraystretch}{1.5}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|cll|}
+\hline
+Degree \& Branch & \multicolumn{1}{c|}{B.E. Computer Science \& Engineering} & Semester & VI \\ \hline
+Subject Code \& Name & \multicolumn{3}{c|}{UCS2612 -- Machine Learning Algorithms Laboratory} \\ \hline
+Academic Year & \multicolumn{1}{c|}{2025--2026 (Even)} & Batch & 2023--2027 \\ \hline
+Due Date & \multicolumn{3}{c|}{{27-01-2026}} \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{center}
+\textbf{Experiment 2: Binary Classification using Na\"ive Bayes and K-Nearest Neighbors}
+\end{center}
+
+%==================================================
+\section{Aim and Objective}
+To implement Na\"ive Bayes and K-Nearest Neighbors (KNN) classifiers for a binary classification problem using the Spambase dataset, evaluate them using multiple performance metrics, and analyze their behavior.
+
+%==================================================
+\section{Dataset Description}
+The experiment uses the \textbf{Spambase Dataset} containing 57 features related to word and character frequencies in emails. The target variable is \texttt{class}, where 1 denotes spam and 0 denotes ham.
+
+%==================================================
+\section{Preprocessing Steps}
+Based on the implementation, the following preprocessing steps were carried out:
+\begin{enumerate}
+    \item \textbf{Data Cleaning}: Duplicate rows were identified using \texttt{df.duplicated()} and removed with \texttt{df.drop\_duplicates()}.
+    \item \textbf{Missing Values}: Handled by checking for null entries using \texttt{df.isnull().sum()}.
+    \item \textbf{Feature Scaling}: Since KNN is distance-dependent, \texttt{StandardScaler} was used to normalize the features.
+    \item \textbf{Data Splitting}: The dataset was split into training and testing sets using \texttt{train\_test\_split}.
+\end{enumerate}
+
+%==================================================
+\section{Implementation Details}
+The following code snippets illustrate the core implementation of the classifiers:
+
+\subsection*{Important Libraries to be included}
+\begin{lstlisting}[language=Python]
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+import math
+from matplotlib import rcParams
+from sklearn.model_selection import train_test_split, StratifiedKFold, GridSearchCV, RandomizedSearchCV,cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
+from sklearn.model_selection import learning_curve
+import time
+from sklearn.metrics import  classification_report, roc_auc_score, average_precision_score
+from scipy.stats import f_oneway
+
+plt.rcParams.update({
+    "font.family": "Arial",
+    "font.size": 15,
+    "axes.titlesize": 15,
+    "axes.titleweight": "bold",
+    "axes.labelsize": 15,
+    "axes.labelweight": "bold",
+    "xtick.labelsize": 13,
+    "ytick.labelsize": 13
+})
+\end{lstlisting}
+
+\subsection*{1. Load the dataset}
+\begin{lstlisting}[language=Python]
+# loading dataset
+df = pd.read_csv("spambase_csv.csv")
+
+# Seeing first 5 rows.
+df.head()
+
+# Checking the data types of each features of the dataset
+df.info()
+\end{lstlisting}
+
+\subsection*{2. Perform data preprocessing (handling missing values and scaling)}
+\begin{lstlisting}[language=Python]
+# Checking if any duplicate rows are found.
+print("Duplicates in data: ", any(df.duplicated()))
+
+# Remove duplicates rows.
+df = df.drop_duplicates()
+
+# Checking the missing and null values...for train data
+any(df.isnull().sum())
+
+# Separate features (X) and target (y)
+X = df.drop('class', axis=1)
+y = df['class']
+\end{lstlisting}
+
+\subsection*{3. Perform Exploratory Data Analysis (EDA)}
+\begin{lstlisting}[language=Python]
+# Statistical summary for train data
+df.describe()
+
+print("Shape of dataset: ",df.shape)
+
+# Boxplot after standard scalar for outliers.
+
+cols_per_plot = 10  # number of features in each subplot
+total_cols = X.shape[1]
+num_plots = math.ceil(total_cols / cols_per_plot)
+
+fig, axes = plt.subplots(nrows=num_plots, ncols=1, figsize=(16, num_plots*4))
+
+for i in range(num_plots):
+    start_col = i * cols_per_plot
+    end_col = min((i+1) * cols_per_plot, total_cols)
+    subset = X.iloc[:, start_col:end_col]  # select subset of columns
+    
+    sns.boxplot(data=subset, ax=axes[i])
+    axes[i].set_title(f"Boxplot for Features {start_col+1} to {end_col}")
+    axes[i].set_xlabel("Features")
+    axes[i].set_ylabel("Values")
+    axes[i].tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()
+
+# Handling outliers by using capping.
+cols = df.drop(columns='class', axis = 1)
+for col in cols:
+    upper_limit = df[col].quantile(0.95)
+    lower_limit = df[col].quantile(0.05)
+    df[col] = np.where(df[col]>upper_limit, upper_limit, np.where(df[col]<lower_limit, lower_limit, df[col]))
+
+
+# Separate features (X) and target (y) again after handling outliers.
+X = df.drop('class', axis=1)
+y = df['class']
+
+# Correlation analysis
+corr = df.corr()
+
+# Heatmap plot for correlation analysis
+plt.figure(figsize=(12, 10))
+sns.heatmap(
+    corr,
+    annot=True,
+    fmt=".2f",
+    cmap="coolwarm",
+    square=True,
+    annot_kws={"size": 8}
+)
+plt.title("Correlation Heatmap")
+plt.show()
+\end{lstlisting}
+
+\subsection*{4. Visualize class distribution and feature behavior}
+\begin{lstlisting}[language=Python]
+# Class Distribution Plot
+sns.countplot(data=df,x="class")
+
+# Feature vs. target scatter plots
+# Select numerical features
+num_features = df.select_dtypes(include=['int64', 'float64']).columns
+
+# Number of columns
+cols = 3
+rows = math.ceil(len(num_features) / cols)
+
+# Create subplots
+fig, axes = plt.subplots(rows, cols, figsize=(5*cols, 4*rows))
+axes = axes.flatten()
+
+# Plot each feature
+for i, col in enumerate(num_features):
+    sns.scatterplot(x=df[col], y=df["class"], ax=axes[i])
+    axes[i].set_title(f"{col} vs Target")
+    axes[i].set_xlabel(col)
+    axes[i].set_ylabel("Class")
+
+# Remove empty subplots
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.tight_layout()
+plt.show()
+
+# Histogram
+cols = df.columns
+ncols = 3
+nrows = math.ceil(len(cols) / ncols)
+
+fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(15, 4 * nrows))
+axes = axes.flatten()
+
+bxwidth = 1
+
+for i, col in enumerate(cols):
+    sns.histplot(df[col], bins=20, ax=axes[i])
+    axes[i].set_title(f"{col.upper()} Distribution", pad=20)
+    axes[i].set_xlabel(col, labelpad=0)
+    axes[i].set_ylabel("Frequency", labelpad=10)
+    for spine in axes[i].spines.values():
+        spine.set_linewidth(bxwidth)
+
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.subplots_adjust(hspace=1.5, wspace=1.3)
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\subsection*{5. Split the dataset into training and testing sets}
+\begin{lstlisting}[language=Python]
+# Checking the class balance 
+print("Class 1 has : ", df[df['class'] == 1].shape)
+print("Class 0 has : ", df[df['class'] == 0].shape)
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.2, random_state=42, stratify=y)
+\end{lstlisting}
+
+\subsection*{6. Train Naive Bayes variants}
+\begin{lstlisting}[language=Python]
+# Standardize numerical features
+scaler = StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Gaussian Naive Bayes
+# Training time for Gaussian NB
+start = time.time()
+gnb = GaussianNB()
+gnb.fit(X_train_scaled, y_train)
+ttgnb = time.time()-start
+
+# Prediction time for Gaussian NB
+start = time.time()
+y_pred = gnb.predict(X_test_scaled)
+pred_time_gnb = time.time() - start
+
+print("The training time for Gaussian Naive Bayes is: ",ttgnb)
+print("The prediction time for Gaussian Naive Bayes is: ",pred_time_gnb)
+print("Accuracy: ", accuracy_score(y_test,y_pred))
+print("Precision: ", precision_score(y_test,y_pred))
+print("Recall: ", recall_score(y_test,y_pred))
+print("F1 Score: ", f1_score(y_test,y_pred))
+
+# Confusion Matrix
+print("Confusion matrix is \n",confusion_matrix(y_test,y_pred))
+cm = confusion_matrix(y_test, y_pred)
+tn, fp, fn, tp = cm.ravel()
+
+specificity = tn / (tn + fp)
+print("Specificity:", specificity)
+false_positive_rate = fp / (fp + tn)
+print("False Positive Rate:", false_positive_rate)
+
+# Classification Report
+print("Overall Report of model \n\n",classification_report(y_test,y_pred))
+
+# Multinomial Naive Bayes
+# Training time for Multinomial NB
+start=time.time()
+mnb=MultinomialNB()
+mnb.fit(X_train,y_train)
+ttmnb=time.time()-start
+
+# Prediction time for Multinomial NB
+start=time.time()
+y_pred=mnb.predict(X_test)
+pred_time=time.time()-start
+
+print("The training time for Multinomial Naive Bayes is: ",ttmnb)
+print("The prediction time for Multinomial Naive Bayes is: ",pred_time)
+print("Accuracy: ", accuracy_score(y_test,y_pred))
+print("Precision: ", precision_score(y_test,y_pred))
+print("Recall: ", recall_score(y_test,y_pred))
+print("F1 Score: ", f1_score(y_test,y_pred))
+
+# Confusion Matrix
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion matrix is \n",confusion_matrix(y_test,y_pred))
+tn, fp, fn, tp = cm.ravel()
+
+specificity = tn / (tn + fp)
+print("Specificity:", specificity)
+false_positive_rate = fp / (fp + tn)
+print("False Positive Rate:", false_positive_rate)
+
+# Classification Report
+print("Overall Report of model \n\n",classification_report(y_test,y_pred))
+
+# Bernoulli Naive Bayes
+
+# Training time for Bernoulli NB
+start=time.time()
+bnb=BernoulliNB()
+bnb.fit(X_train,y_train)
+ttbnb=time.time()-start
+
+# Prediction time for Bernoulli NB
+start=time.time()
+y_pred = bnb.predict(X_test)
+pred_time=time.time()-start
+
+print("The training time for Bernoulli Naive Bayes is: ",ttbnb)
+print("The prediction time for Bernoulli Naive Bayes is: ",pred_time)
+print("Accuracy: ", accuracy_score(y_test,y_pred))
+print("Precision: ", precision_score(y_test,y_pred))
+print("Recall: ", recall_score(y_test,y_pred))
+print("F1 Score: ", f1_score(y_test,y_pred))
+
+# Confusion Matrix
+print("Confusion matrix is \n",confusion_matrix(y_test,y_pred))
+cm = confusion_matrix(y_test, y_pred)
+tn, fp, fn, tp = cm.ravel()
+
+specificity = tn / (tn + fp)
+print("Specificity:", specificity)
+false_positive_rate = fp / (fp + tn)
+print("False Positive Rate:", false_positive_rate)
+
+# Classification Report for Bernoulli NB
+print("Overall Report of model \n\n",classification_report(y_test,y_pred))
+\end{lstlisting}
+
+\subsection*{7. Train a baseline KNN classifier}
+\begin{lstlisting}[language=Python]
+knn = KNeighborsClassifier()
+knn.fit(X_train_scaled,y_train)
+y_pred_knn = knn.predict(X_test_scaled)
+
+# Accuracy vs k plot
+k_values = range(1, 21)
+accuracies = []
+
+for k in k_values:
+  knn = KNeighborsClassifier(n_neighbors=k)
+  knn.fit(X_train_scaled, y_train)
+  accuracies.append(knn.score(X_test_scaled, y_test))
+
+plt.plot(k_values, accuracies, marker='o')
+plt.xlabel('k value')
+plt.ylabel('Accuracy')
+plt.title('Accuracy vs k')
+plt.show()
+\end{lstlisting}
+
+\subsection*{8. Perform hyperparameter tuning for KNN using 5-Fold Cross-Validation}
+\begin{lstlisting}[language=Python]
+# Stratified K fold
+skf=StratifiedKFold(n_splits=5,shuffle=True,random_state=42)
+cv_scores_base=cross_val_score(
+    knn,
+    X_train_scaled,
+    y_train,
+    cv=skf,
+    scoring='precision'
+)
+print("Base KNN CV Precision:",cv_scores_base.mean())
+
+# Grid Search CV
+param_grid = {
+    'n_neighbors': list(range(1, 31, 2)),
+    'weights': ['uniform', 'distance'],
+    'metric': ['euclidean', 'manhattan']
+}
+
+grid = GridSearchCV(
+    knn,
+    param_grid,
+    cv=skf,
+    scoring='precision',
+    n_jobs=-1
+)
+
+grid.fit(X_train_scaled, y_train)
+
+best_k = grid.best_params_['n_neighbors']
+
+print("Grid Best Params:", grid.best_params_)
+print("Best k (n_neighbors):", best_k)
+print("Grid Best CV Precision:", grid.best_score_)
+
+# Randomized Search CV
+from scipy.stats import randint
+param_dist={
+    'n_neighbors':randint(1,30),
+    'weights':['uniform','distance'],
+    'metric':['euclidean','manhattan']
+}
+rand = RandomizedSearchCV(
+    knn,
+    param_distributions=param_dist,
+    n_iter=15,
+    cv=skf,
+    scoring='precision',
+    random_state=42,
+    n_jobs=-1
+)
+rand.fit(X_train_scaled,y_train)
+best_k = rand.best_params_['n_neighbors']
+print("Random Best Params:",rand.best_params_)
+print("Best k (n_neighbors):", best_k)
+print("Random Best CV Precision:",rand.best_score_)
+
+# Final KNN 
+best_params = rand.best_params_
+
+knn_final = KNeighborsClassifier(
+    n_neighbors=best_params['n_neighbors'],
+    weights=best_params['weights'],
+    metric=best_params['metric']
+)
+knn_final.fit(X_train_scaled,y_train)
+y_pred_final = knn_final.predict(X_test_scaled)
+optimal_k = best_params['n_neighbors']
+print("Optimal K: ", optimal_k)
+
+# Performance Metric
+def compute_metrics(y_true,y_pred):
+    cm = confusion_matrix(y_true,y_pred)
+    tn,fp,fn,tp = cm.ravel()
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred)
+    specificity = tn/(tn+fp)
+    fpr = fp/(fp+tn)
+    return accuracy,precision,recall,f1,specificity,fpr,cm
+
+start = time.time()
+knn_final.fit(X_train_scaled,y_train)
+train_time_knn = time.time()-start
+
+start = time.time()
+y_pred_knn = knn_final.predict(X_test_scaled)
+pred_time_knn = time.time()-start
+
+accuracy_knn, precision_knn, recall_knn, f1_score_knn, specificity_knn, false_positive_rate_knn, confusion_matrix_knn = compute_metrics(y_test,y_pred_knn)
+print("Final KNN Metrics")
+
+KNN_table = pd.DataFrame({
+    "Metrices": ["Accuracy", "Precision", "Recall", "F1 Score", "Specificity", "False Positive Rate", "Training Time", "Prediction Time"],
+    "Values":[accuracy_knn, precision_knn, recall_knn, f1_score_knn, specificity_knn, false_positive_rate_knn, train_time_knn, pred_time_knn]
+})
+
+KNN_table
+
+# Confusion Matrix - Final KNN
+sns.heatmap(cm,annot=True,fmt='d',cmap='Blues')
+plt.title("Confusion Matrix – Final KNN")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+\end{lstlisting}
+
+\subsection*{9. Train optimized KNN models using KDTree and BallTree}
+\begin{lstlisting}[language=Python]
+# KD Tree
+start = time.time()
+knn_kd = KNeighborsClassifier(
+    n_neighbors = optimal_k,
+    weights = best_params['weights'],
+    metric = best_params['metric'],
+    algorithm = 'kd_tree'
+)
+# Training time for KNN using KD Tree
+knn_kd.fit(X_train_scaled,y_train)
+train_time_kd = time.time()-start
+
+# Prediction time for KNN using KD Tree
+start = time.time()
+y_pred_kd = knn_kd.predict(X_test_scaled)
+pred_time_kd = time.time()-start
+
+# KD Tree Performance Metric
+accuracy_kd, precision_kd, recall_kd, f1_score_kd, specificity_kd, false_positive_rate_kd, confusion_matrix_kd = compute_metrics(y_test,y_pred_kd)
+print("Final KD Tree Metrics")
+
+KNN_KD_table = pd.DataFrame({
+    "Metric": ["Optimal k", "Accuracy", "Precision", "Recall", "F1 Score", "Specificity", "False Positive Rate", "Training Time", "Prediction Time"],
+    "Values":[optimal_k, accuracy_kd, precision_kd, recall_kd, f1_score_kd, specificity_kd, false_positive_rate_kd, train_time_kd, pred_time_kd]
+})
+
+KNN_KD_table
+
+# Ball Tree
+start = time.time()
+knn_bt = KNeighborsClassifier(
+    n_neighbors = optimal_k,
+    weights = best_params['weights'],
+    metric = best_params['metric'],
+    algorithm = 'ball_tree'
+)
+# Training time for KNN using KD Tree
+knn_bt.fit(X_train_scaled,y_train)
+train_time_bt = time.time()-start
+
+# Prediction time for KNN using KD Tree
+start = time.time()
+y_pred_bt = knn_bt.predict(X_test_scaled)
+pred_time_bt = time.time()-start
+
+# Ball Tree Performance Metric
+accuracy_bt, precision_bt, recall_bt, f1_score_bt, specificity_bt, false_positive_rate_bt, confusion_matrix_bt = compute_metrics(y_test,y_pred_bt)
+print("Final Ball Tree Metrics")
+
+KNN_Ball_table = pd.DataFrame({
+    "Metric": ["Optimal k", "Accuracy", "Precision", "Recall", "F1 Score", "Specificity", "False Positive Rate", "Training Time", "Prediction Time"],
+    "Values":[optimal_k, accuracy_bt, precision_bt, recall_bt, f1_score_bt, specificity_bt, false_positive_rate_bt, train_time_bt, pred_time_bt]
+})
+
+KNN_Ball_table
+\end{lstlisting}
+
+\subsection*{10. Evaluate all models using multiple metrics}
+\begin{lstlisting}[language=Python]
+# Cross-Validation Scores
+gnb_scores = cross_val_score(GaussianNB(), X_train, y_train, cv = skf, scoring='precision')
+mnb_scores = cross_val_score(MultinomialNB(), X_train, y_train, cv = skf, scoring='precision')
+bnb_scores = cross_val_score(BernoulliNB(), X_train, y_train, cv = skf, scoring='precision')
+knn_kd_scores = cross_val_score(knn_kd, X_train_scaled, y_train, cv = skf, scoring='precision')
+knn_bt_scores = cross_val_score(knn_bt, X_train_scaled, y_train, cv = skf, scoring='precision')
+
+# One-Way ANOVA Test
+F_stat,p_value=f_oneway(
+    gnb_scores,
+    mnb_scores,
+    bnb_scores,
+    knn_kd_scores,
+    knn_bt_scores
+)
+
+print("F-statistic:",F_stat)
+print("p-value:",p_value)
+
+print("Gaussian NB Mean precision:",gnb_scores.mean())
+print("Multinomial NB Mean precision:",mnb_scores.mean())
+print("Bernoulli NB Mean precision:",bnb_scores.mean())
+print("KNN KDTree Mean precision:",knn_kd_scores.mean())
+print("KNN BallTree Mean precision:",knn_bt_scores.mean())
+
+best_model=max(
+    [
+        ("Gaussian NB",gnb_scores.mean()),
+        ("Multinomial NB",mnb_scores.mean()),
+        ("Bernoulli NB",bnb_scores.mean()),
+        ("KNN KDTree",knn_kd_scores.mean()),
+        ("KNN BallTree",knn_bt_scores.mean())
+    ],
+    key=lambda x:x[1]
+)
+
+print("Best Model:",best_model)
+\end{lstlisting}
+%==================================================
+% -------------------- SECTION --------------------
+\section{Visualizations}
+
+This section presents the visual analysis of the model's performance, including
+class distribution, feature behavior, and classification results across all models.
+
+% -------------------- FIGURES --------------------
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{class_distribution.png}
+    \caption{Class Distribution Plots (Spam vs Ham)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{training_vs_validation.png}
+    \caption{Training vs Validation Accuracy}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{confusion_matrices.png}
+    \caption{Confusion Matrix for Each Classifier}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{ROC_curves.png}
+    \caption{ROC Curves for Each Classifier}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{acc_vs_k.png}
+    \caption{Accuracy vs. k Plot for KNN}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{NB_bar.png}
+    \caption{Performance Comparison of Naive Bayes Variants}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{KNN_bar.png}
+    \caption{Performance Comparison of KNN Variants}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{feature_distribution.png}
+    \caption{Feature Distribution Plots}
+\end{figure}
+
+%==================================================
+\section{Performance Tables}
 %==================================================
 \section*{Na\"ive Bayes Performance Comparison}
 \begin{table}[h!]
@@ -215,48 +1552,18 @@ Memory Usage & Low / Medium & Medium / High \\
 \end{table}
 
 %==================================================
-\section*{Overfitting and Underfitting Analysis}
-Students must discuss:
+\section{Overfitting and Underfitting Analysis}
+The analysis was conducted by comparing training and testing accuracies. A high $k$ value in KNN tended to underfit, while a very low $k$ (e.g., $k=1$) risked overfitting the training noise. The optimal $k$ found through GridSearch provides the best generalization.
+
+%==================================================
+\section{Bias--Variance Analysis}
 \begin{itemize}
-    \item Difference between training and validation accuracy
-    \item Effect of small and large values of $k$
-    \item Role of hyperparameter tuning in generalization
+    \item \textbf{Na\"ive Bayes}: High bias due to the independence assumption but low variance.
+    \item \textbf{KNN}: Low bias but high variance, which was reduced by selecting an optimal $k$ and using cross-validation.
 \end{itemize}
 
 %==================================================
-\section*{Bias--Variance Analysis}
-Students must comment on:
-\begin{itemize}
-    \item Bias behavior of Na\"ive Bayes
-    \item Variance behavior of KNN
-    \item Effect of tuning on bias--variance trade-off
-\end{itemize}
-
-%==================================================
-\section*{Conclusion}
-Summarize the performance of both classifiers, justify the choice of optimal parameters, and comment on computational efficiency and generalization behavior.
-
-%==================================================
-\section*{Report Format (Mandatory)}
-\begin{enumerate}
-    \item Aim and Objective
-    \item Dataset Description
-    \item Preprocessing Steps
-    \item Implementation Details
-    \item Visualizations
-    \item Performance Tables
-    \item Overfitting and Underfitting Analysis
-    \item Bias--Variance Analysis
-    \item Observations and Conclusion
-\end{enumerate}
-
-%==================================================
-\section*{References}
-\begin{itemize}
-    \item \href{https://scikit-learn.org/stable/modules/naive_bayes.html}{Scikit-learn: Na\"ive Bayes}
-    \item \href{https://scikit-learn.org/stable/modules/neighbors.html}{Scikit-learn: KNN}
-    \item \href{https://scikit-learn.org/stable/modules/grid_search.html}{Scikit-learn: Hyperparameter Optimization}
-    \item \href{https://www.kaggle.com/datasets/somesh24/spambase}{Spambase Dataset}
-\end{itemize}
+\section{Observations and Conclusion}
+The experiment demonstrated that KNN (with KDTree/BallTree) outperformed the Na\"ive Bayes variants in terms of accuracy on the Spambase dataset. Bernoulli NB was the most effective among the probabilistic models for this specific task.
 
 \end{document}
