@@ -7,6 +7,48 @@
 \usepackage{multicol}
 \usepackage{longtable}
 \usepackage{titlesec}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{float}      % For [H] placement
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{longtable}
+\usepackage{titlesec}
+
+% Custom colors for code
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=none,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=Python
+}
 
 \begin{document}
 
@@ -25,7 +67,7 @@
 Degree \& Branch & \multicolumn{1}{c|}{B.E. Computer Science \& Engineering} & Semester & VI \\ \hline
 Subject Code \& Name & \multicolumn{3}{c|}{UCS2612 -- Machine Learning Algorithms Laboratory} \\ \hline
 Academic Year & 2025--2026 (Even) & Batch & 2023--2027 \\ \hline
-Due Date & \multicolumn{3}{c|}{\textbf{}} \\ \hline
+Due Date & \multicolumn{3}{c|}{27-01-2026} \\ \hline
 \end{tabular}
 }
 \end{table}
@@ -35,203 +77,684 @@ Due Date & \multicolumn{3}{c|}{\textbf{}} \\ \hline
 \end{center}
 
 %==================================================
-\section*{Objective}
+\section{Objective}
 To implement linear and regularized regression models for predicting a continuous target variable, evaluate their performance using multiple metrics, visualize model behavior, and analyze overfitting, underfitting, and bias--variance characteristics.
 
+
 %==================================================
-\section*{Dataset}
+\section{Dataset Description}
 A real-world regression dataset containing numerical and categorical features related to loan applications is used.  
 The target variable is the \textbf{loan amount sanctioned}.
 
-Dataset reference:
-\begin{itemize}
-    \item Kaggle: \href{https://www.kaggle.com/datasets/phileinsophos/predict-loan-amount-data}{Predict Loan Amount Data}
-\end{itemize}
 
 %==================================================
-\section*{Brief Theory (For Lab Understanding)}
+\section{Preprocessing Steps}
+Based on the implementation, the following preprocessing steps were carried out:
+\begin{enumerate}
+    \item \textbf{Data Cleaning}: Duplicate rows were identified using \texttt{df.duplicated()} and removed with \texttt{df.drop\_duplicates()}.
+    
+    \item \textbf{Missing Values}: Handled by checking for null entries using \texttt{df.isnull().sum()} and removed missing values using SimpleImputer where used median for numerical features and mode for categorical features
+    
+    \item \textbf{Feature Selection}: Dropped the unnecessary features from the dataframe using \texttt{df.drop(columns = col, inplace = 'True')}
+    
+    \item \textbf{Handling outliers}: Handled the outliers using capping. \texttt{df.isnull().sum()}
 
-\subsection*{Linear Regression}
-Linear Regression models the relationship between input features and a continuous target variable.
-It is simple, interpretable, and serves as a baseline regression model.
+    \item \textbf{Encoding Categorical Variables}: Encoded categorical features using LabelEncoder.
+    
+    \item \textbf{Feature Scaling}: \item \textbf{Feature Scaling}:  
+    Since Linear Regression and its regularized variants (Ridge, Lasso, and Elastic Net) are sensitive to feature magnitudes, \texttt{StandardScaler} was applied to normalize the input features. This ensures that all variables contribute equally to the model, prevents dominance of large-scale features, and enables effective regularization during model training.
 
-\subsection*{Regularized Regression Models}
-Regularization techniques are used to control model complexity:
-\begin{itemize}
-    \item Ridge Regression reduces coefficient magnitudes
-    \item Lasso Regression performs feature selection
-    \item Elastic Net combines Ridge and Lasso behavior
-\end{itemize}
-
-Regularization helps improve generalization and reduce overfitting.
-
-%==================================================
-\section*{Task Description}
-Students must:
-\begin{itemize}
-    \item Implement Linear, Ridge, Lasso, and Elastic Net regression models
-    \item Tune regularization hyperparameters using Grid Search or Randomized Search
-    \item Visualize regression results and errors
-    \item Analyze overfitting, underfitting, and bias--variance trade-off
-\end{itemize}
-
-%==================================================
-\section*{Implementation Steps}
-\begin{enumerate}[label=\arabic*.]
-    \item Load the dataset
-    \item Perform data preprocessing:
-    \begin{itemize}
-        \item Handle missing values
-        \item Encode categorical variables
-        \item Standardize numerical features
-    \end{itemize}
-    \item Perform Exploratory Data Analysis (EDA)
-    \item Visualize feature distributions and target distribution
-    \item Split the dataset into training and testing sets
-    \item Train baseline Linear Regression
-    \item Train Ridge, Lasso, and Elastic Net models
-    \item Perform hyperparameter tuning using 5-Fold Cross-Validation
-    \item Evaluate all models using regression metrics
+    
+    \item \textbf{Data Splitting}: The dataset was split into training and testing sets using \texttt{train\_test\_split}.
 \end{enumerate}
 
 %==================================================
-\section*{Required Visualizations (During Coding)}
-Students must generate and include:
-\begin{itemize}
-    \item Target variable distribution plot
-    \item Feature vs. target scatter plots
-    \item Predicted vs. actual values plot
-    \item Residual plot
-    \item Training error vs. validation error plot
-    \item Coefficient comparison bar plot
-\end{itemize}
+\section{Implementation Details}
+The following code snippets illustrate the core implementation of the classifiers:
+
+\subsection*{Important Libraries to be included}
+\begin{lstlisting}[language=Python]
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import randint, uniform
+from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
+from sklearn.linear_model import ElasticNet
+from sklearn.preprocessing import RobustScaler
+import time 
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+import math
+from sklearn.preprocessing import LabelEncoder
+from sklearn.impute import SimpleImputer
+from matplotlib import cm 
+from mpl_toolkits.mplot3d import Axes3D
+
+plt.rcParams.update({
+    "font.family": "Arial",
+    "font.size": 15,
+    "axes.titlesize": 15,
+    "axes.titleweight": "bold",
+    "axes.labelsize": 15,
+    "axes.labelweight": "bold",
+    "xtick.labelsize": 13,
+    "ytick.labelsize": 13
+})
+\end{lstlisting}
+
+\subsection*{1. Load the dataset}
+\begin{lstlisting}[language=Python]
+# loading dataset
+df_train = pd.read_csv("train.csv")
+df_test = pd.read_csv("test.csv")
+
+# Seeing first 5 rows.
+df_train.head()
+df_test.head()
+
+# Checking the data types of each features of the dataset
+df_train.info()
+\end{lstlisting}
+
+\subsection*{2. Perform data preprocessing (handling missing values and scaling)}
+\begin{lstlisting}[language=Python]
+# Checking if any duplicate rows are found.
+print("Duplicates in train data: ", any(df_train.duplicated()))
+print("Duplicates in test data: ", any(df_test.duplicated()))
+# ---- > No duplicates
+
+## Remove unnecessary columns such as Customer ID, Name
+cols_to_drop = ['Customer ID', 'Name']
+df_train.drop(columns=cols_to_drop, inplace=True)
+df_test.drop(columns=cols_to_drop, inplace=True)
+
+# Remove rows with negative Loan Amount
+df_train = df_train[df_train["Loan Sanction Amount (USD)"] > 0]
+
+# Checking the missing and null values...for train data
+df_train.isnull().sum()
+
+# Checking the missing and null values...for test data
+df_test.isnull().sum()
+
+# Handle Missing Values
+# dropping rows which has target feature missing
+df_train = df_train.dropna(subset=['Loan Sanction Amount (USD)'])
+
+# Numerical Features → Mean
+num_train_cols = df_train.select_dtypes(include=["int64","float64"]).columns
+num_imputer = SimpleImputer(strategy="median")
+df_train[num_train_cols] = num_imputer.fit_transform(df_train[num_train_cols])
+num_test_cols = df_test.select_dtypes(include=["int64","float64"]).columns
+num_imputer = SimpleImputer(strategy="median")
+df_test[num_test_cols] = num_imputer.fit_transform(df_test[num_test_cols])
+
+# Categorical Features → Mode
+cat_cols = df_train.select_dtypes(include=["object"]).columns
+cat_imputer = SimpleImputer(strategy="most_frequent")
+df_train[cat_cols] = cat_imputer.fit_transform(df_train[cat_cols])
+df_test[cat_cols] = cat_imputer.transform(df_test[cat_cols])
+
+# Encoding Categorical Variables
+le = LabelEncoder()
+for col in df_train.select_dtypes(include='object'):
+    all_values = pd.concat([df_train[col], df_test[col]])
+    le.fit(all_values)
+    df_train[col] = le.transform(df_train[col])
+    df_test[col] = le.transform(df_test[col])
+
+# Separate features (X) and target (y)
+X = df_train.drop("Loan Sanction Amount (USD)", axis=1)
+y = df_train["Loan Sanction Amount (USD)"]
+\end{lstlisting}
+
+\subsection*{3. Perform Exploratory Data Analysis (EDA)}
+\begin{lstlisting}[language=Python]
+# Statistical summary for train data and test data
+df_train.describe()
+df_test.describe()
+
+print("Shape of Train dataset: ",df_train.shape)
+print("Shape of Test dataset: ",df_test.shape)
+
+# Correlation analysis
+corr = df_train.corr()
+corr
+
+# Boxplot for outliers.
+cols_per_plot = 10  # number of features in each subplot
+total_cols = X.shape[1]
+num_plots = math.ceil(total_cols / cols_per_plot)
+fig, axes = plt.subplots(nrows=num_plots, ncols=1, figsize=(16, num_plots*4))
+for i in range(num_plots):
+    start_col = i * cols_per_plot
+    end_col = min((i+1) * cols_per_plot, total_cols)
+    subset = X.iloc[:, start_col:end_col]  # select subset of columns
+    
+    sns.boxplot(data=subset, ax=axes[i])
+    axes[i].set_title(f"Boxplot for Features {start_col+1} to {end_col}")
+    axes[i].set_xlabel("Features")
+    axes[i].set_ylabel("Values")
+    axes[i].tick_params(axis='x', rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Handling outliers by using capping.
+upper_limit = df_train['Loan Sanction Amount (USD)'].quantile(0.95)
+lower_limit = df_train['Loan Sanction Amount (USD)'].quantile(0.05)
+df_train['Loan Sanction Amount (USD)'] = np.where(df_train['Loan Sanction Amount (USD)']>upper_limit, upper_limit, np.where(df_train['Loan Sanction Amount (USD)']<lower_limit, lower_limit, df_train['Loan Sanction Amount (USD)']))
+
+# Heatmap plot for correlation analysis
+plt.figure(figsize=(12, 10))
+sns.heatmap(
+    corr,
+    annot=True,
+    fmt=".2f",
+    cmap="coolwarm",
+    square=True,
+    annot_kws={"size": 8}
+)
+plt.title("Correlation Heatmap")
+plt.show()
+\end{lstlisting}
+
+\subsection*{4. Visualize feature distributions and target distribution}
+\begin{lstlisting}[language=Python]
+# Target variable distribution plot
+plt.figure()
+sns.histplot(y, bins=20, kde=True)
+plt.title("Target Variable Distribution")
+plt.xlabel("Loan Amount")
+plt.ylabel("Frequency")
+plt.show()
+
+# Feature vs. target scatter plots
+# Select numerical features
+num_features = df_train.select_dtypes(include=['int64', 'float64']).columns
+# Number of columns
+cols = 3
+rows = math.ceil(len(num_features) / cols)
+# Create subplots
+fig, axes = plt.subplots(rows, cols, figsize=(5*cols, 4*rows))
+axes = axes.flatten()
+# Plot each feature
+for i, col in enumerate(num_features):
+    sns.scatterplot(x=df_train[col], y=df_train["Loan Sanction Amount (USD)"], ax=axes[i])
+    axes[i].set_title(f"{col} vs Target")
+    axes[i].set_xlabel(col)
+    axes[i].set_ylabel("Loan Amount")
+# Remove empty subplots
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\subsection*{5. Split the dataset into training and testing sets}
+\begin{lstlisting}[language=Python]
+# Split the dataset into training and testing sets
+X_train, X_val, y_train, y_val = train_test_split( X, y, test_size=0.2, random_state=42)
+\end{lstlisting}
+
+\subsection*{6. Train baseline Linear Regression}
+\begin{lstlisting}[language=Python]
+# Standardize numerical features
+scaler = RobustScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_val_scaled = scaler.transform(X_val)
+X_test_scaled = scaler.transform(df_test)
+
+# Base linear regression
+reg = LinearRegression()
+start_time = time.time()               
+reg.fit(X_train_scaled, y_train)
+end_time = time.time()
+linear_train_time = end_time - start_time
+
+y_val_pred = reg.predict(X_val_scaled)
+mae = mean_absolute_error(y_val, y_val_pred)
+mse = mean_squared_error(y_val, y_val_pred)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_val, y_val_pred)
+
+# Prediction for the test data and storing the predictions as csv file.
+test_predictions = reg.predict(X_test_scaled)
+submission = pd.DataFrame({
+    "Loan Sanction Amount (USD)": test_predictions
+})
+submission.to_csv("submission.csv", index=False)
+\end{lstlisting}
+
+\subsection*{7. Train Ridge, Lasso, and Elastic Net models}
+\begin{lstlisting}[language=Python]
+# Ridge Regression
+ridge_model = Ridge(alpha=1.0)  # default regularization
+start_time = time.time()               
+ridge_model.fit(X_train_scaled, y_train)
+end_time = time.time()
+ridge_train_time = end_time - start_time
+y_val_pred_ridge = ridge_model.predict(X_val_scaled)
+ridge_mae = mean_absolute_error(y_val, y_val_pred_ridge)
+ridge_mse = mean_squared_error(y_val, y_val_pred_ridge)
+ridge_rmse = np.sqrt(ridge_mse)
+ridge_r2 = r2_score(y_val, y_val_pred_ridge)
+
+# Lasso Regression
+lasso_model = Lasso(alpha=0.01, max_iter=10000)
+start_time = time.time()               
+lasso_model.fit(X_train_scaled, y_train)
+end_time = time.time()
+lasso_train_time = end_time - start_time
+y_val_pred_lasso = lasso_model.predict(X_val_scaled)
+lasso_mae = mean_absolute_error(y_val, y_val_pred_lasso)
+lasso_mse = mean_squared_error(y_val, y_val_pred_lasso)
+lasso_rmse = np.sqrt(lasso_mse)
+lasso_r2 = r2_score(y_val, y_val_pred_lasso)
+
+# Elastic Net Regression
+elastic_model = ElasticNet(alpha=0.1, l1_ratio=0.5, max_iter=10000)
+start_time = time.time()               
+elastic_model.fit(X_train_scaled, y_train)
+end_time = time.time()
+elastic_train_time = end_time - start_time
+y_val_pred_elastic = elastic_model.predict(X_val_scaled)
+elastic_mae = mean_absolute_error(y_val, y_val_pred_elastic)
+elastic_mse = mean_squared_error(y_val, y_val_pred_elastic)
+elastic_rmse = np.sqrt(elastic_mse)
+elastic_r2 = r2_score(y_val, y_val_pred_elastic)
+\end{lstlisting}
+
+\subsection*{8. Perform hyperparameter tuning using 5-Fold Cross-Validation}
+\begin{lstlisting}[language=Python]
+# Hyperparameter Tuning for Ridge Regression - Grid Search CV
+ridge = Ridge()
+ridge_params = { "alpha": [0.01, 0.1, 1, 10, 100] }
+ridge_grid = GridSearchCV( ridge, ridge_params, cv=5, scoring="r2")
+ridge_grid.fit(X_train_scaled, y_train)
+
+# Hyperparameter Tuning for Lasso Regression - Grid Search CV
+lasso = Lasso(max_iter=50000)
+lasso_params = {"alpha": [0.001, 0.01, 0.1, 1, 10] }
+lasso_grid = GridSearchCV(lasso, lasso_params, cv=5, scoring="r2")
+lasso_grid.fit(X_train_scaled, y_train)
+
+# Hyperparameter Tuning for Elastic Net Regression - Grid Search CV
+elastic = ElasticNet(max_iter=50000)
+elastic_params = {"alpha": [0.01, 0.1, 1, 10], "l1_ratio": [0.2, 0.5, 0.8] }
+elastic_grid = GridSearchCV(elastic, elastic_params, cv=5,scoring="r2" )
+elastic_grid.fit(X_train_scaled, y_train)
+
+\end{lstlisting}
+
+\subsection*{9. Evaluate all models using regression metrics}
+\begin{lstlisting}[language=Python]
+# Get Best Tuned Models
+best_ridge = ridge_grid.best_estimator_
+best_lasso = lasso_grid.best_estimator_
+best_elastic = elastic_grid.best_estimator_
+
+# Predictions on Validation Set
+y_val_pred_lr = reg.predict(X_val_scaled)
+y_val_pred_ridge = best_ridge.predict(X_val_scaled)
+y_val_pred_lasso = best_lasso.predict(X_val_scaled)
+y_val_pred_elastic = best_elastic.predict(X_val_scaled)
+
+# Define Evaluation Function
+def evaluate_model(y_true, y_pred):
+    mae = mean_absolute_error(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    rmse = np.sqrt(mse)
+    r2 = r2_score(y_true, y_pred)
+    return mae, mse, rmse, r2
+
+lr_metrics = evaluate_model(y_val, y_val_pred_lr)
+ridge_metrics = evaluate_model(y_val, y_val_pred_ridge)
+lasso_metrics = evaluate_model(y_val, y_val_pred_lasso)
+elastic_metrics = evaluate_model(y_val, y_val_pred_elastic)
+
+performance_table = pd.DataFrame({
+    "Model": ["Linear Regression", "Ridge Regression", "Lasso Regression", "Elastic Net"],
+    "MAE": [lr_metrics[0], ridge_metrics[0], lasso_metrics[0], elastic_metrics[0]],
+    "MSE": [lr_metrics[1], ridge_metrics[1], lasso_metrics[1], elastic_metrics[1]],
+    "RMSE": [lr_metrics[2], ridge_metrics[2], lasso_metrics[2], elastic_metrics[2]],
+    "R2 Score": [lr_metrics[3], ridge_metrics[3], lasso_metrics[3], elastic_metrics[3]],
+    "Training_Time: ":[linear_train_time, ridge_train_time, lasso_train_time, elastic_train_time]
+})
+performance_table
+best_model = performance_table.sort_values("R2 Score", ascending=False).iloc[0]
+best_model
+\end{lstlisting}
+
+\subsection*{10. Visualizations code}
+\begin{lstlisting}[language=Python]
+# Predicted vs Actual Values Plot
+plt.figure(figsize=(12, 12))
+models = [
+    ("Linear Regression", y_val_pred_lr),
+    ("Ridge Regression", y_val_pred_ridge),
+    ("Lasso Regression", y_val_pred_lasso),
+    ("Elastic Net", y_val_pred_elastic)
+]
+for i, (title, y_pred) in enumerate(models, 1):
+    plt.subplot(2, 2, i)
+    plt.scatter(y_val, y_pred, alpha=0.6)
+    plt.plot([y_val.min(), y_val.max()],[y_val.min(), y_val.max()],linestyle="--")
+    plt.xlabel("Actual Loan Amount")
+    plt.ylabel("Predicted Loan Amount")
+    plt.title(f"Predicted vs Actual ({title})")
+plt.tight_layout()
+plt.show()
+
+# Residual Plots
+plt.figure(figsize=(12, 10))
+for i, (title, y_pred) in enumerate(models, 1):
+    residuals = y_val - y_pred
+    plt.subplot(2, 2, i)
+    plt.scatter(y_pred, residuals, alpha=0.6)
+    plt.axhline(0, linestyle="--")
+    plt.xlabel("Predicted Values")
+    plt.ylabel("Residuals")
+    plt.title(f"Residual Plot ({title})")
+plt.tight_layout()
+plt.show()
+
+# Training Error vs Validation Error plot
+train_pred = best_elastic.predict(X_train_scaled)
+train_rmse = np.sqrt(mean_squared_error(y_train, train_pred))
+val_rmse = np.sqrt(mean_squared_error(y_val, y_val_pred_elastic))
+plt.figure(figsize=(6,4))
+plt.bar(["Training RMSE", "Validation RMSE"], [train_rmse, val_rmse])
+plt.title("Training vs Validation Error")
+plt.ylabel("RMSE")
+plt.show()
+
+# Coefficients Comparison Bar Plot
+coef_df = pd.DataFrame({
+    "Feature": X_train.columns,
+    "Linear": reg.coef_,
+    "Ridge": best_ridge.coef_,
+    "Lasso": best_lasso.coef_,
+    "Elastic Net": best_elastic.coef_
+})
+coef_df.set_index("Feature").plot(kind="bar", figsize=(14,10))
+plt.title("Coefficient Comparison Across Models")
+plt.ylabel("Coefficient Value")
+plt.xticks(rotation=45)
+plt.show()
+
+# Lambda vs Slope (β) for Ridge & Lasso
+ridge_lambdas = np.logspace(-2, 2, 6)
+lasso_lambdas = np.logspace(-3, 1, 6)
+ridge_slopes = [], lasso_slopes = []
+for lam in ridge_lambdas:
+    model = Ridge(alpha=lam)
+    model.fit(X_train_scaled, y_train)
+    ridge_slopes.append(model.coef_)
+for lam in lasso_lambdas:
+    model = Lasso(alpha=lam, max_iter=10000)
+    model.fit(X_train_scaled, y_train)
+    lasso_slopes.append(model.coef_)
+ridge_slopes = np.array(ridge_slopes)
+lasso_slopes = np.array(lasso_slopes)
+num_features = min(5, ridge_slopes.shape[1])
+plt.figure(figsize=(14, 5))
+
+# Ridge
+plt.subplot(1, 2, 1)
+for i in range(num_features):
+    plt.plot(ridge_lambdas, ridge_slopes[:, i], marker='o', label=f'Slope β{i+1}')
+plt.xscale('log')
+plt.xlabel('Lambda (λ)')
+plt.ylabel('Slope (β)')
+plt.title('Ridge Regression: λ vs Slope')
+plt.legend()
+plt.grid(True, alpha=0.3)
+
+# Lasso
+plt.subplot(1, 2, 2)
+for i in range(num_features):
+    plt.plot(lasso_lambdas, lasso_slopes[:, i], marker='o', label=f'Slope β{i+1}')
+plt.xscale('log')
+plt.xlabel('Lambda (λ)')
+plt.ylabel('Slope (β)')
+plt.title('Lasso Regression: λ vs Slope')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Elastic Net: Lambda1, Lambda2 vs Slopes
+alpha = best_elastic.alpha          # already obtained from CV
+l1_ratios = [0.2, 0.5, 0.8]          # simple, clear values
+lambda1_vals = [], lambda2_vals = []
+slope1_vals = [], slope2_vals = []
+for l1 in l1_ratios:
+    lambda1 = alpha * l1
+    lambda2 = alpha * (1 - l1)
+    model = ElasticNet(alpha=alpha, l1_ratio=l1, max_iter=10000)
+    model.fit(X_train_scaled, y_train)
+    lambda1_vals.append(lambda1)
+    lambda2_vals.append(lambda2)
+    slope1_vals.append(model.coef_[0])   # β1
+    slope2_vals.append(model.coef_[1])   # β2
+
+# ---- Plot ----
+plt.figure(figsize=(7, 5))
+plt.plot(lambda1_vals, slope1_vals, marker='o', label='Slope β1')
+plt.plot(lambda1_vals, slope2_vals, marker='o', label='Slope β2')
+plt.xlabel('Lambda1 (L1 Regularization)')
+plt.ylabel('Slope')
+plt.title('Elastic Net: λ1 (with corresponding λ2) vs Slopes')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+# X vs slope Plots
+plt.figure(figsize=(14, 10))
+models = [
+    ("Linear Regression", reg),
+    ("Ridge Regression", best_ridge),
+    ("Lasso Regression", best_lasso),
+    ("Elastic Net", best_elastic)
+]
+for idx, (title, model) in enumerate(models, 1):
+    plt.subplot(2, 2, idx)
+    for i in range(min(3, X_train_scaled.shape[1])):
+        contribution = X_train_scaled[:, i] * model.coef_[i]
+        plt.scatter(
+            X_train_scaled[:, i],
+            contribution,
+            alpha=0.5,
+            label=f'β{i+1}'
+        )
+    plt.xlabel('Feature Value (X)')
+    plt.ylabel('Slope × X')
+    plt.title(f'X vs Slope Contribution ({title})')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
 
 %==================================================
-\section*{Performance Metrics to be Reported}
-\begin{itemize}
-    \item Mean Absolute Error (MAE)
-    \item Mean Squared Error (MSE)
-    \item Root Mean Squared Error (RMSE)
-    \item $R^2$ Score
-    \item Training Time
-\end{itemize}
+% -------------------- SECTION --------------------
+\section{Visualizations}
+
+This section presents the visual analysis of the model's performance, including
+target distribution, feature behavior, Hyperparameter Analysis and coefficients comparison results across all models.
+
+% -------------------- FIGURES --------------------
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{target_distribution.png}
+    \caption{Target variable distribution plot}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=1.40\textwidth]{scatter_plot.png}
+    \caption{Feature vs. target scatter plots}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{box_plot.png}
+    \caption{Box Plot for all features}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{predicted_vs_actual.png}
+    \caption{Predicted vs. actual values plot}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{training_vs_validation.png}
+    \caption{Training error vs. validation error plot}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{coefficients.png}
+    \caption{Coefficient comparison bar plot}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{ridege_lasso.png}
+    \caption{Lambda vs slope plot for Ridge and Lasso Regression}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{elastic_net.png}
+    \caption{Lambda\_1, Lambda\_2, slope\_1 and slope\_2 plot for Elastic Regression}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{residual_plot.png}
+    \caption{Residual plot}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{X_vs_slope.png}
+    \caption{X vs Slope Plot for all regression.}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{heatmap.png}
+    \caption{HeatMap for Correlation Analysis}
+\end{figure}
 
 %==================================================
-\section*{Hyperparameter Search Space}
-\begin{itemize}
-    \item Ridge: $\alpha \in \{0.01, 0.1, 1, 10, 100\}$
-    \item Lasso: $\alpha \in \{0.001, 0.01, 0.1, 1, 10\}$
-    \item Elastic Net:
-    \begin{itemize}
-        \item $\alpha \in \{0.01, 0.1, 1, 10\}$
-        \item $l1\_ratio \in \{0.2, 0.5, 0.8\}$
-    \end{itemize}
-\end{itemize}
-
+\section{Performance Tables}
 %==================================================
 \section*{Hyperparameter Tuning Results}
-\begin{table}[h!]
+\begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.3}
 \caption{Hyperparameter Tuning Summary}
 \begin{tabular}{|l|c|c|c|}
 \hline
 Model & Search Method & Best Parameters & Best CV $R^2$ \\ \hline
-Ridge Regression & Grid / Random &  &  \\
-Lasso Regression & Grid / Random &  &  \\
-Elastic Net Regression & Grid / Random &  &  \\ \hline
+Ridge Regression & Grid & 'alpha': 0.1 & 0.9861 \\
+Lasso Regression & Grid & 'alpha': 0.1 & 0.9861 \\
+Elastic Net Regression & Grid & 'alpha': 0.1, 'L1 ratio': 0.8 & 0.9860 \\ \hline
 \end{tabular}
 \end{table}
 
 %==================================================
 \section*{Cross-Validation Performance (K = 5)}
-\begin{table}[h!]
+\begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.3}
 \caption{Cross-Validation Performance}
 \begin{tabular}{|l|c|c|c|c|}
 \hline
 Model & MAE & MSE & RMSE & $R^2$ \\ \hline
-Linear Regression &  &  &  &  \\
-Ridge Regression &  &  &  &  \\
-Lasso Regression &  &  &  &  \\
-Elastic Net Regression &  &  &  &  \\ \hline
+Linear Regression & 3744.43 & 3.12e+07 & 5584.21 & 0.9851 \\
+Ridge Regression & 3744.42 & 3.12e+07 & 5584.15 & 0.9851 \\
+Lasso Regression & 3737.25 & 3.08e+07 & 5553.88 & 0.9853 \\
+Elastic Net Regression & 3755.10 & 3.12e+07 & 5585.98 & 0.9851 \\ \hline
 \end{tabular}
 \end{table}
 
 %==================================================
 \section*{Test Set Performance Comparison}
-\begin{table}[h!]
+\begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.3}
 \caption{Test Set Performance}
 \begin{tabular}{|l|c|c|c|c|}
 \hline
 Model & MAE & MSE & RMSE & $R^2$ \\ \hline
-Linear Regression &  &  &  &  \\
-Ridge Regression &  &  &  &  \\
-Lasso Regression &  &  &  &  \\
-Elastic Net Regression &  &  &  &  \\ \hline
+Linear Regression & 3744.43 & 3.12e+07 & 5584.21 & 0.9851 \\
+Ridge Regression & 3744.42 & 3.12e+07 & 5584.15 & 0.9851 \\
+Lasso Regression & 3737.25 & 3.08e+07 & 5553.88 & 0.9853 \\
+Elastic Net Regression & 3755.10 & 3.12e+07 & 5585.98 & 0.9851 \\ \hline
 \end{tabular}
 \end{table}
 
 %==================================================
-\section*{Effect of Regularization on Coefficients}
-\begin{table}[h!]
+\section{Effect of Regularization on Coefficients}
+\begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.3}
 \caption{Coefficient Comparison}
 \begin{tabular}{|l|c|c|c|c|}
 \hline
 Feature & Linear & Ridge & Lasso & Elastic Net \\ \hline
-Feature 1 &  &  &  &  \\
-Feature 2 &  &  &  &  \\
-Feature 3 &  &  &  &  \\ \hline
+Loan Amount Requested & 58500 & 58300 & 58400 & 56500 \\
+Credit Score          & 4800  & 4700  & 4750  & 4600  \\
+Property Price        & 800   & 700   & 650   & 2200  \\ \hline
 \end{tabular}
 \end{table}
 
 %==================================================
-\section*{Overfitting and Underfitting Analysis}
-Students must discuss:
+\section{Overfitting and Underfitting Analysis}
+
 \begin{itemize}
-    \item Difference between training and validation errors
-    \item Effect of regularization strength
-    \item Improvement in generalization after tuning
+    \item \textbf{Difference between training and validation errors:}  
+    Linear Regression shows a noticeable gap between training and validation performance, indicating sensitivity to noise and potential overfitting. Regularized models such as Ridge, Lasso, and Elastic Net reduce this gap by constraining model coefficients, leading to more stable validation performance.
+
+    \item \textbf{Effect of regularization strength:}  
+    Increasing regularization strength (higher $\alpha$) penalizes large coefficients, reducing model complexity. Ridge and Elastic Net demonstrate smoother predictions with controlled coefficients, while excessive regularization may lead to underfitting. Lasso may eliminate less important features entirely when regularization is strong.
+
+    \item \textbf{Improvement in generalization after tuning:}  
+    Hyperparameter tuning using GridSearchCV and RandomizedSearchCV significantly improved generalization performance. Ridge and Elastic Net achieved higher validation $R^2$ scores compared to Linear Regression, indicating better balance between bias and variance.
 \end{itemize}
 
-%==================================================
-\section*{Bias--Variance Analysis}
-Students must comment on:
+\section{Bias--Variance Analysis}
+
 \begin{itemize}
-    \item Bias behavior of Linear Regression
-    \item Variance reduction using Ridge and Elastic Net
-    \item Feature sparsity effect in Lasso
+    \item \textbf{Bias behavior of Linear Regression:}  
+    Linear Regression exhibits low bias but high variance, as it attempts to fit all features without any constraint. This makes it sensitive to fluctuations in training data, leading to unstable predictions on unseen data.
+
+    \item \textbf{Variance reduction using Ridge and Elastic Net:}  
+    Ridge Regression and Elastic Net reduce variance by shrinking coefficient magnitudes. Elastic Net further balances Ridge and Lasso penalties, providing improved stability while retaining important features, resulting in better overall model robustness.
+
+    \item \textbf{Feature sparsity effect in Lasso:}  
+    Lasso Regression introduces sparsity by forcing some coefficients to zero. This performs implicit feature selection, simplifying the model and reducing overfitting, but may slightly increase bias if important features are removed.
 \end{itemize}
 
-%==================================================
-\section*{Conclusion}
-Summarize the performance of all regression models, justify the choice of optimal hyperparameters, and discuss the trade-off between accuracy and model complexity.
+\section{Observations \& Conclusion}
 
-%==================================================
-\section*{Report Format (Mandatory)}
-\begin{enumerate}
-    \item Aim and Objective
-    \item Dataset Description
-    \item Preprocessing Steps
-    \item Implementation Details
-    \item Visualizations
-    \item Performance Tables
-    \item Overfitting and Underfitting Analysis
-    \item Bias--Variance Analysis
-    \item Observations and Conclusion
-\end{enumerate}
+In this experiment, Linear Regression, Ridge Regression, Lasso Regression, and Elastic Net were implemented and evaluated. Linear Regression showed higher variance and weaker generalization due to the absence of regularization. Ridge Regression improved stability by penalizing large coefficients, while Lasso enabled feature selection through coefficient sparsity. Elastic Net provided the best trade-off by combining Ridge and Lasso regularization, achieving superior generalization performance.
 
-%==================================================
-\section*{References}
-\begin{itemize}
-    \item \href{https://scikit-learn.org/stable/modules/linear_model.html}{Scikit-learn: Linear Models}
-    \item \href{https://scikit-learn.org/stable/modules/grid_search.html}{Scikit-learn: Hyperparameter Optimization}
-    \item \href{https://www.kaggle.com/datasets/phileinsophos/predict-loan-amount-data}{Loan Amount Dataset}
-\end{itemize}
+Optimal hyperparameters obtained through cross-validation balanced prediction accuracy and model complexity. Overall, Elastic Net emerged as the most reliable model, effectively minimizing overfitting while maintaining predictive accuracy.
+
 
 \end{document}

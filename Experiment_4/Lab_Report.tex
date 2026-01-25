@@ -157,6 +157,8 @@ X = df.drop('class', axis=1)
 y = df['class']
 \end{lstlisting}
 
+
+
 \subsection*{3. Perform Exploratory Data Analysis (EDA)}
 \begin{lstlisting}[language=Python]
 # Statistical summary for train data
@@ -730,6 +732,7 @@ class distribution, feature behavior, Hyperparameter Analysis and classification
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.3}
+\caption{Hyperparameter Tuning Results}
 \begin{tabular}{|l|c|c|c|}
 \hline
 Model & Search Method & Best Parameters & Best CV Precision \\ \hline
@@ -745,6 +748,7 @@ SVM & Random & 'C': 0.17, 'degree': 3, 'gamma': 'auto', 'kernel': 'poly' & 0.98 
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.3}
+\caption{Logistic Regression Performance}
 \begin{tabular}{|l|c|}
 \hline
 Metric & Value \\ \hline
@@ -779,6 +783,7 @@ Sigmoid & 0.91 & 0.89 & 0.89 & 0.13 \\
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.3}
+\caption{K-Fold Cross-Validation Results (K = 5)}
 \begin{tabular}{|c|c|c|}
 \hline
 Fold & Logistic Regression & SVM \\ \hline
@@ -796,6 +801,7 @@ Average & 0.95 & 0.99 \\ \hline
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.3}
+\caption{Comparative Analysis}
 \begin{tabular}{|l|c|c|}
 \hline
 Criterion & Logistic Regression & SVM \\ \hline
@@ -809,7 +815,7 @@ Interpretability & High & Low \\ \hline
 %==================================================
 \section{Observations}
 \begin{itemize}
-    \item The SVM classifier with RBF kernel achieves the best overall performance,
+    \item The SVM classifier with Poly kernel achieves the best overall performance,
     showing high precision and balanced F1-score on the imbalanced email dataset.
 
     \item Regularization significantly affects model performance by controlling
