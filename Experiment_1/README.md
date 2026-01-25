@@ -127,11 +127,14 @@ Screenshots of these outputs are stored in the `screenshots/` folder.
 
 ---
 
-## ✅ Conclusion
+## 🎯 Learning Outcomes
 
-This experiment provides a foundational understanding of Python-based data analysis and machine learning workflows. By working with multiple libraries, it demonstrates how different tools integrate seamlessly to process data, perform analysis, build models, and visualize results effectively.
-
----
+- Gained hands-on experience with core Python libraries for Machine Learning
+- Learned to perform EDA and data preprocessing
+- Understood how to choose appropriate ML models for different tasks
+- Implemented feature scaling, encoding, and selection
+- Evaluated models using standard performance metrics
+- Understood the complete machine learning pipeline
 
 ## 👤 Author
 
