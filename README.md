@@ -72,6 +72,20 @@ ML_Lab_Experiments/
 │   ├── datasets/
 │   └── screenshots/
 │
+├── Experiment_5/
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── Experiment_5.ipynb
+│   ├── datasets/
+│   └── screenshots/
+│
+├── Experiment_6/
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── Experiment_6.ipynb
+│   ├── datasets/
+│   └── screenshots/
+│
 └── README.md   ← (This file)
 ```
 
@@ -118,6 +132,26 @@ ML_Lab_Experiments/
 - Comparative model analysis
 
 ---
+
+### 🔹 Experiment 5: Perceptron vs Multilayer Perceptron with Hyperparameter Tuning
+
+- Implementation of Single-Layer Perceptron (PLA)
+- Multilayer Perceptron (MLP) with hidden layers
+- Image preprocessing and normalization
+- Hyperparameter tuning (learning rate, optimizer, activation, batch size)
+- Training convergence analysis
+- PLA vs MLP performance comparison
+- Confusion matrix and ROC evaluation
+
+### 🔹Experiment 6: Decision Tree and Random Forest — Comparative Study
+
+- Decision Tree classifier implementation
+- Random Forest ensemble model
+- Hyperparameter tuning using 5-Fold Cross-Validation
+- Overfitting and generalization analysis
+- Tree depth and feature importance study
+- Model comparison using accuracy, precision, recall, F1-score
+- ROC curve and confusion matrix analysis
 
 ## ▶️ How to Run the Experiments
 
