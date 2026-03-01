@@ -143,6 +143,8 @@ ML_Lab_Experiments/
 - PLA vs MLP performance comparison
 - Confusion matrix and ROC evaluation
 
+---
+
 ### 🔹Experiment 6: Decision Tree and Random Forest — Comparative Study
 
 - Decision Tree classifier implementation
