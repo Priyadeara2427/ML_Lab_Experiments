@@ -86,6 +86,26 @@ ML_Lab_Experiments/
 │   ├── datasets/
 │   └── screenshots/
 │
+├── Experiment_7/
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── Experiment_7.ipynb
+│   ├── datasets/
+│   └── outputs/
+│
+├── Experiment_8/
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── Experiment_8.ipynb
+│   ├── datasets/
+│   └── outputs/
+│
+├── Experiment_9/
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── Experiment_9.ipynb
+│   ├── datasets/
+│   └── outputs/
 └── README.md   ← (This file)
 ```
 
@@ -154,6 +174,34 @@ ML_Lab_Experiments/
 - Tree depth and feature importance study
 - Model comparison using accuracy, precision, recall, F1-score
 - ROC curve and confusion matrix analysis
+
+---
+
+### 🔹Experiment 7: Bagging, Boosting and Stacked Ensemble Models
+
+- Understand Ensemble learning strategies: Bagging, Boosting and Stacking.
+- Bagging and Boosting Classifiers Implementation.
+- Stacked Ensemble model using multiple base learners.
+- Compare Ensemble models in terms of accuracy, stablility and gereralization.
+- Analyze effect of ensemble methods on bias and variance.
+
+---
+
+### 🔹Experiment 8: Effect of PCA on Regression and Classification Models.
+
+- Impact of Principal Component Anaysis (PCA) on the performace of machine learning models.
+- Training models in the original feature space (Without PCA)
+- Training models in reduced feature space (With PCA)
+- Compare performace using 5-fold cross-validation.
+
+---
+
+### 🔹Experiment 9: Clustering Human Activity Recognition Data using K-Means, DBSCAN, and Hierarchial CLustering.
+
+- Implement and analyze the performance of clustering algorithms on the Human Activity Recognition Dataset.
+- Model A: K-Means CLustering
+- Model B: DBSCAN
+- Model C: Hierarchial Agglomerative Clustering (HAC)
 
 ## ▶️ How to Run the Experiments
 
